@@ -21,21 +21,22 @@ export default function PostsList({ posts, user, token, initialComments }) {
   };
 
   const submitComment = async (postId) => {
-    if (!token) return toast.error("Debes iniciar sesión para comentar");
-    try {
-      const res = await api.post(`/posts/${postId}/comments`, { content: newComment[postId] }, { headers: { Authorization: `Bearer ${token}` } });
-      if (res.status === 201 || res.status === 200) {
-        toast.success("Comentario creado");
-        setCommentsData((prev) => ({ ...prev, [postId]: [...(prev[postId] || []), res.data] }));
-        setNewComment((prev) => ({ ...prev, [postId]: "" }));
-        setShowCommentInput((prev) => ({ ...prev, [postId]: false }));
-      } else {
-        toast.error("No se pudo crear el comentario");
-      }
-    } catch (err) {
-      toast.error(`Error en el servidor: ${err.message}`);
-    }
-  };
+  if (!token) return toast.error("Debes iniciar sesión para comentar");
+
+  try {
+    const newCommentData = await api.post(`/posts/${postId}/comments`, { content: newComment[postId] }, token);
+    toast.success("Comentario creado");
+    setCommentsData((prev) => ({
+      ...prev,
+      [postId]: [...(prev[postId] || []), newCommentData],
+    }));
+    setNewComment((prev) => ({ ...prev, [postId]: "" }));
+    setShowCommentInput((prev) => ({ ...prev, [postId]: false }));
+  } catch (err) {
+    toast.error(`Error en el servidor: ${err.message}`);
+  }
+};
+
 
   const deletePost = async (postId) => {
     try {
