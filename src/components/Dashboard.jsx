@@ -116,7 +116,7 @@ export default function Dashboard() {
                 {!selectedCategory ? (
                   <Button label="Crear Categoría" icon="pi pi-folder-plus" className="p-button-info" onClick={() => navigate("/categories/create")} />
                 ) : (
-                  <Button label={`Crear Post en "${selectedCategory.name}"`} icon="pi pi-plus" className="p-button-success" onClick={() => navigate(`/posts/create?category=${selectedCategory.id}`)} />
+                  <Button label={`Crear Post en "${selectedCategory.name}"`} icon="pi pi-plus" className="p-button-success" onClick={() => navigate(`/posts/create/${selectedCategory.id}`)} />
                 )}
               </>
             )}
