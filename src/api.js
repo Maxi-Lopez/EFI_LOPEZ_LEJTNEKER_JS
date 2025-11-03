@@ -36,13 +36,16 @@ const api = {
   async delete(path, token = null) {
     const headers = { "Content-Type": "application/json" };
     if (token) headers.Authorization = `Bearer ${token}`;
+
     const res = await fetch(`${API_URL}${path}`, {
       method: "DELETE",
       headers,
     });
+
     if (!res.ok) throw new Error(`Error ${res.status}`);
     return res.json();
-  },
+}
+
 };
 
 export default api;

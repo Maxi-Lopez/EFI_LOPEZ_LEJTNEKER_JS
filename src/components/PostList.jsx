@@ -40,7 +40,7 @@ export default function PostsList({ posts, user, token, initialComments }) {
 
   const deletePost = async (postId) => {
     try {
-      await api.delete(`/posts/${postId}`, { headers: { Authorization: `Bearer ${token}` } });
+      await api.delete(`/comments/${commentId}`, token);
       toast.success("Post eliminado");
       window.location.reload();
     } catch (err) {
@@ -50,9 +50,12 @@ export default function PostsList({ posts, user, token, initialComments }) {
 
   const deleteComment = async (postId, commentId) => {
     try {
-      await api.delete(`/comments/${commentId}`, { headers: { Authorization: `Bearer ${token}` } });
+      await api.delete(`/comments/${commentId}`, token);
       toast.success("Comentario eliminado");
-      setCommentsData((prev) => ({ ...prev, [postId]: prev[postId].filter(c => c.id !== commentId) }));
+      setCommentsData((prev) => ({
+        ...prev,
+        [postId]: prev[postId].filter((c) => c.id !== commentId),
+      }));
     } catch (err) {
       toast.error("No se pudo eliminar el comentario");
     }
