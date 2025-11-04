@@ -87,13 +87,23 @@ export default function Dashboard() {
   return (
     <div>
       <ToastContainer />
+
+      {/* Header fijo */}
       <div
         style={{
+          position: "fixed",
+          top: 0,
+          left: 0,
+          right: 0,
+          zIndex: 1000,
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
           padding: "1rem",
           borderBottom: "1px solid #ddd",
+           backgroundColor: "#3399ff",
+          boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
+          color: "#333",
         }}
       >
         <h2>Dashboard</h2>
@@ -130,7 +140,15 @@ export default function Dashboard() {
         </div>
       </div>
 
-      <div style={{ padding: "1.5rem", maxWidth: "900px", margin: "0 auto" }}>
+      {/* Contenido principal */}
+      <div
+        style={{
+          padding: "1.5rem",
+          maxWidth: "900px",
+          margin: "0 auto",
+          marginTop: "80px", // deja espacio para el header
+        }}
+      >
         <Card>
           <div
             style={{
@@ -171,10 +189,16 @@ export default function Dashboard() {
           {!selectedCategory && (
             <>
               {loadingCategories ? (
-               <div style={{ display: 'flex', justifyContent: 'center',     alignItems: 'center', height: '200px' }}>
-                <ProgressSpinner />
-              </div>
-
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    height: "200px",
+                  }}
+                >
+                  <ProgressSpinner />
+                </div>
               ) : categories.length === 0 ? (
                 <p>No hay categorías disponibles</p>
               ) : (
@@ -203,8 +227,15 @@ export default function Dashboard() {
           {selectedCategory && (
             <>
               {loadingPosts ? (
-                 <div style={{ display: 'flex', justifyContent: 'center',     alignItems: 'center', height: '200px' }}>
-                    <ProgressSpinner />
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    height: "200px",
+                  }}
+                >
+                  <ProgressSpinner />
                 </div>
               ) : posts.length > 0 ? (
                 <PostsList
