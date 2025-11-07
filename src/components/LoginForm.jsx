@@ -152,7 +152,6 @@ export default function LoginForm() {
           />
         </div>
 
-        {/* Demo credentials hint */}
         <div style={{ 
           marginTop: "2rem",
           padding: "1rem",
@@ -167,7 +166,7 @@ export default function LoginForm() {
             margin: 0
           }}>
             <i className="pi pi-info-circle" style={{ marginRight: "0.5rem" }}></i>
-            Usa cualquier cuenta registrada para probar
+            Usa cualquier cuenta registrada para ingresar
           </p>
         </div>
       </div>

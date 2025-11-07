@@ -213,38 +213,7 @@ export default function CreateCategory() {
             />
           </div>
 
-          {/* Consejos para nombres de categorías */}
-          <div style={{ 
-            marginTop: "1.5rem",
-            padding: "1.5rem",
-            background: "rgba(102, 126, 234, 0.1)",
-            borderRadius: "var(--radius-md)",
-            border: "1px solid rgba(102, 126, 234, 0.2)"
-          }}>
-            <h4 style={{ 
-              color: "var(--text-primary)",
-              marginBottom: "1rem",
-              display: "flex",
-              alignItems: "center",
-              gap: "0.5rem"
-            }}>
-              <i className="pi pi-lightbulb" style={{ color: "var(--neon-blue)" }}></i>
-              Consejos para nombres efectivos
-            </h4>
-            <ul style={{ 
-              color: "var(--text-secondary)", 
-              paddingLeft: "1.5rem",
-              margin: 0,
-              lineHeight: "1.6"
-            }}>
-              <li>Usa nombres claros y descriptivos</li>
-              <li>Mantén una longitud razonable</li>
-              <li>Evita caracteres especiales</li>
-              <li>Considera la temática general</li>
-              <li>Piensa en la facilidad de búsqueda</li>
-            </ul>
-          </div>
-        </div>
+         </div>
       </div>
     </div>
   );

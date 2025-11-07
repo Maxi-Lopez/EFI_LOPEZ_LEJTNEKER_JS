@@ -1,4 +1,3 @@
-// src/components/CreatePost.jsx
 import { useState, useEffect, useContext } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Button } from "primereact/button";
@@ -233,38 +232,6 @@ export default function CreatePost() {
               />
             </div>
           </form>
-
-          {/* Tips para escribir buenos posts */}
-          <div style={{ 
-            marginTop: "2rem",
-            padding: "1.5rem",
-            background: "rgba(255, 255, 255, 0.05)",
-            borderRadius: "var(--radius-md)",
-            border: "1px solid rgba(255, 255, 255, 0.1)"
-          }}>
-            <h4 style={{ 
-              color: "var(--text-primary)",
-              marginBottom: "1rem",
-              display: "flex",
-              alignItems: "center",
-              gap: "0.5rem"
-            }}>
-              <i className="pi pi-lightbulb" style={{ color: "var(--neon-green)" }}></i>
-              Consejos para un buen post
-            </h4>
-            <ul style={{ 
-              color: "var(--text-secondary)", 
-              paddingLeft: "1.5rem",
-              margin: 0,
-              lineHeight: "1.6"
-            }}>
-              <li>Sé claro y conciso en tu título</li>
-              <li>Organiza tu contenido en párrafos</li>
-              <li>Incluye ejemplos si es posible</li>
-              <li>Revisa la ortografía antes de publicar</li>
-              <li>Formula preguntas para fomentar la discusión</li>
-            </ul>
-          </div>
         </div>
       </div>
     </div>

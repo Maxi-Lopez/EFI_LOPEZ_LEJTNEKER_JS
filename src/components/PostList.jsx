@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Button } from "primereact/button";
 import { InputText } from "primereact/inputtext";
-import { Card } from "primereact/card";
 import { Chip } from "primereact/chip";
 import { ToastContainer, toast } from "react-toastify";
 import api from "../api";
@@ -92,17 +91,19 @@ export default function PostsList({ posts, user, token, initialComments }) {
     }
   };
 
+  // ✅ CORREGIDO: Usa user.sub que es donde está el ID real
   const canDeletePost = (post) =>
     user &&
     (user.role === "admin" ||
       user.role === "moderator" ||
-      user.id === post.author_id);
+      String(user.sub) === String(post.author_id));
 
+  // ✅ CORREGIDO: Usa user.sub que es donde está el ID real
   const canDeleteComment = (comment) =>
     user &&
     (user.role === "admin" ||
       user.role === "moderator" ||
-      user.id === comment.author_id);
+      String(user.sub) === String(comment.author_id));
 
   const formatDate = (dateString) => {
     return new Date(dateString).toLocaleString('es-ES', {
@@ -192,7 +193,7 @@ export default function PostsList({ posts, user, token, initialComments }) {
                   {canDeletePost(post) && (
                     <Button
                       icon="pi pi-trash"
-                      className="p-button-danger p-button-outlined p-button-sm"
+                      className="tech-button-outlined"
                       style={{ 
                         borderColor: "var(--neon-pink)", 
                         color: "var(--neon-pink)" 
@@ -251,7 +252,7 @@ export default function PostsList({ posts, user, token, initialComments }) {
                               icon="pi pi-send"
                               className="tech-button"
                               onClick={() => submitComment(post.id)}
-                              disabled={!newComment[post.id]?.trim()} // ✅ CORREGIDO: usa post.id
+                              disabled={!newComment[post.id]?.trim()}
                             />
                           </div>
                           <Button

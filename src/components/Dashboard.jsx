@@ -81,7 +81,7 @@ export default function Dashboard() {
       <div className="tech-grid"></div>
       <ToastContainer />
 
-      {/* Header tecno fijo */}
+      {/* Header fijo */}
       <div className="dashboard-header fade-in">
         <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
           <i className="pi pi-th-large" style={{ fontSize: "1.5rem", color: "var(--neon-cyan)" }}></i>
