@@ -1,8 +1,8 @@
-// src/components/RegisterForm.jsx
 import { Formik, Form, Field, ErrorMessage } from 'formik'
 import * as Yup from 'yup'
 import { Button } from 'primereact/button'
 import { InputText } from 'primereact/inputtext'
+import { Dropdown } from 'primereact/dropdown'
 import { toast } from 'react-toastify'
 import { useNavigate } from 'react-router-dom'
 import api from '../api'  
@@ -11,42 +11,54 @@ import "../styles/RegisterForm.css"
 const validationSchema = Yup.object({
     name: Yup.string().required("Name is required"),
     email: Yup.string().email("Invalid email").required("Email is required"),
-    password: Yup.string().required("Password is required")
+    password: Yup.string().required("Password is required"),
+    role: Yup.string().required("Role is required")
 })
+
+const roleOptions = [
+    { label: 'Usuario', value: 'user' },
+    { label: 'Administrador', value: 'admin' },
+    { label: 'Moderador', value: 'moderator' }
+]
 
 export default function RegisterForm() {
     const navigate = useNavigate()
 
     const handleSubmit = async (values, { resetForm }) => {
         try {
-            const data = await api.post('/register', {
+            const payload = {
                 name: values.name,
                 email: values.email,
                 password: values.password,
                 role: "user"  
-            })
+            }
 
-            toast.success(`User registered successfully (ID: ${data.user_id})`)
+            const data = await api.post('/register', payload)
+
+            toast.success(`Usuario registrado exitosamente`)
             resetForm()
             setTimeout(() => navigate('/'), 1500)
             
         } catch (error) {
-            toast.error(`Error registering: ${error.message}`)
+            const errorMessage = error.response?.data?.error || 
+                               error.response?.data?.errors || 
+                               error.message;
+            toast.error(`Error en registro: ${errorMessage}`)
         }
     }
 
     return (
         <div className='register-container'>
-            <h2>Create Account</h2>
+            <h2>Crear Cuenta</h2>
             <Formik
-                initialValues={{ name: '', email: '', password: '' }}
+                initialValues={{ name: '', email: '', password: '', role: 'user' }}
                 validationSchema={validationSchema}
                 onSubmit={handleSubmit}
             >
-                {({ isSubmitting }) => (
+                {({ isSubmitting, values }) => (
                     <Form className='register-form'>
                         <div className='form-field'>
-                            <label>Name</label>
+                            <label>Nombre</label>
                             <Field as={InputText} name='name' />
                             <ErrorMessage name='name' component='small' className='error' />
                         </div>
@@ -56,19 +68,32 @@ export default function RegisterForm() {
                             <ErrorMessage name='email' component='small' className='error' />
                         </div>
                         <div className='form-field'>
-                            <label>Password</label>
+                            <label>Contraseña</label>
                             <Field as={InputText} name='password' type='password' />
                             <ErrorMessage name='password' component='small' className='error' />
+                        </div>
+                        <div className='form-field'>
+                            <label>Rol</label>
+                            <Field 
+                                as={Dropdown} 
+                                name="role" 
+                                options={roleOptions}
+                                placeholder="Selecciona un rol"
+                                className="role-dropdown"
+                            />
+                            <small style={{ color: '#666', fontStyle: 'italic', marginTop: '5px' }}>
+                                * Por seguridad, todos los usuarios se registran como "Usuario"
+                            </small>
                         </div>
                         <div className='form-buttons' style={{ display: 'flex', gap: '1rem' }}>
                             <Button 
                                 type='submit' 
-                                label={isSubmitting ? "Registering..." : "Register"} 
+                                label={isSubmitting ? "Registrando..." : "Registrarse"} 
                                 disabled={isSubmitting}
                             />
                             <Button 
                                 type='button' 
-                                label="Cancel" 
+                                label="Cancelar" 
                                 className='p-button-secondary' 
                                 onClick={() => navigate('/')} 
                             />

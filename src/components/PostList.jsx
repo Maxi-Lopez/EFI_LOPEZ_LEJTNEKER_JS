@@ -8,7 +8,7 @@ export default function PostsList({ posts, user, token, initialComments }) {
   const [showCommentInput, setShowCommentInput] = useState({});
   const [newComment, setNewComment] = useState({});
   const [commentsData, setCommentsData] = useState(initialComments || []);
-  const [deletedPosts, setDeletedPosts] = useState({}); // <-- posts eliminados
+  const [deletedPosts, setDeletedPosts] = useState({}); 
 
   useEffect(() => {
     if (initialComments) setCommentsData(initialComments);
@@ -58,7 +58,7 @@ export default function PostsList({ posts, user, token, initialComments }) {
       if (!res.ok) throw new Error(`Error ${res.status}`);
 
       toast.success("Post eliminado");
-      setDeletedPosts((prev) => ({ ...prev, [postId]: true })); // <-- marcar como borrado
+      setDeletedPosts((prev) => ({ ...prev, [postId]: true }));
     } catch (err) {
       toast.error(`No se pudo eliminar el post: ${err.message}`);
     }
@@ -113,8 +113,12 @@ export default function PostsList({ posts, user, token, initialComments }) {
                 <p>{post.content}</p>
                 <p>
                   <strong>Autor:</strong> {post.author?.name || "Anónimo"}{" "}
-                  {post.category?.name &&
-                    ` | Categoría: ${post.category.name}`}
+                  {post.category?.name && ` | Categoría: ${post.category.name}`}{" "}
+                  <br />
+                  <strong>Creado:</strong>{" "}
+                  {post.created_at
+                    ? new Date(post.created_at).toLocaleString()
+                    : "Desconocido"}
                 </p>
 
                 {user && (
@@ -157,7 +161,12 @@ export default function PostsList({ posts, user, token, initialComments }) {
                       >
                         <p>{c.content}</p>
                         <p>
-                          <strong>Autor:</strong> {c.author?.name || "Anónimo"}
+                          <strong>Autor:</strong> {c.author?.name || "Anónimo"}{" "}
+                          <br />
+                          <strong>Creado:</strong>{" "}
+                          {c.created_at
+                            ? new Date(c.created_at).toLocaleString()
+                            : "Desconocido"}
                         </p>
                         {canDeleteComment(c) && (
                           <Button

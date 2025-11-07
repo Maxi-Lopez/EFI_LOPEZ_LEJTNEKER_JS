@@ -10,15 +10,23 @@ const api = {
   },
 
   async post(path, data, token = null) {
-    const headers = { "Content-Type": "application/json" };
-    if (token) headers.Authorization = `Bearer ${token}`;
-    const res = await fetch(`${API_URL}${path}`, {
-      method: "POST",
-      headers,
-      body: JSON.stringify(data),
-    });
-    if (!res.ok) throw new Error(`Error ${res.status}`);
-    return res.json();
+      const headers = { "Content-Type": "application/json" };
+      if (token) headers.Authorization = `Bearer ${token}`;
+      
+      const res = await fetch(`${API_URL}${path}`, {
+          method: "POST",
+          headers,
+          body: JSON.stringify(data),
+      });
+      
+      if (!res.ok) {
+          const errorData = await res.json().catch(() => ({}));
+          const error = new Error(`Error ${res.status}`);
+          error.response = { status: res.status, data: errorData };
+          throw error;
+      }
+      
+      return res.json();
   },
 
   async put(path, data, token = null) {
@@ -44,8 +52,7 @@ const api = {
 
     if (!res.ok) throw new Error(`Error ${res.status}`);
     return res.json();
-}
-
+  }
 };
 
 export default api;

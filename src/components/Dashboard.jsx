@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "primereact/button";
 import { Card } from "primereact/card";
@@ -6,37 +6,34 @@ import { ToastContainer, toast } from "react-toastify";
 import { ProgressSpinner } from "primereact/progressspinner";
 import api from "../api";
 import PostsList from "./PostList";
+import { AuthContext } from "../context/AuthContext";
 
 export default function Dashboard() {
   const [categories, setCategories] = useState([]);
   const [posts, setPosts] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState(null);
-  const [user, setUser] = useState(null);
   const [commentsData, setCommentsData] = useState({});
   const [loadingCategories, setLoadingCategories] = useState(false);
   const [loadingPosts, setLoadingPosts] = useState(false);
   const navigate = useNavigate();
 
+  // ✅ SOLO usa el AuthContext, no localStorage
+  const { user, token, logout } = useContext(AuthContext);
+
   useEffect(() => {
-    loadUser();
     loadCategories();
   }, []);
-
-  const loadUser = () => {
-    const userData = localStorage.getItem("user");
-    if (userData) setUser(JSON.parse(userData));
-  };
 
   const loadCategories = async () => {
     setLoadingCategories(true);
     try {
-      const token = localStorage.getItem("token");
+      // ✅ Usa el token del contexto, no localStorage
       const headers = token ? { Authorization: `Bearer ${token}` } : {};
-      const res = await api.get("/categories", { headers });
+      const res = await api.get("/categories", headers); // ✅ Sin el objeto {headers}
       setCategories(res.data || res);
     } catch (err) {
       toast.error("Error al cargar categorías");
-      console.error(err);
+      console.error("Error cargando categorías:", err);
     } finally {
       setLoadingCategories(false);
     }
@@ -45,16 +42,22 @@ export default function Dashboard() {
   const loadPostsByCategory = async (categoryId) => {
     setLoadingPosts(true);
     try {
-      const token = localStorage.getItem("token");
+      // ✅ Usa el token del contexto
       const headers = token ? { Authorization: `Bearer ${token}` } : {};
-      const res = await api.get("/posts", { headers });
+      const res = await api.get("/posts", headers); // ✅ Sin el objeto {headers}
       const allPosts = res.data || res;
+      
+      console.log("Todos los posts:", allPosts); // ✅ Debug
+      
       const filtered = allPosts.filter(
         (p) =>
           p.category?.id === categoryId ||
           p.category_id === categoryId ||
           p.categoryId === categoryId
       );
+      
+      console.log("Posts filtrados:", filtered); // ✅ Debug
+      
       const commentsMap = {};
       filtered.forEach((p) => {
         commentsMap[p.id] = p.comments || [];
@@ -63,7 +66,7 @@ export default function Dashboard() {
       setCommentsData(commentsMap);
     } catch (err) {
       toast.error("Error al cargar los posts de esta categoría");
-      console.error(err);
+      console.error("Error cargando posts:", err);
       setPosts([]);
       setCommentsData({});
     } finally {
@@ -77,10 +80,7 @@ export default function Dashboard() {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
-    setUser(null);
-    toast.success("Sesión cerrada correctamente");
+    logout(); // ✅ Usa el logout del contexto
     navigate("/");
   };
 
@@ -101,13 +101,13 @@ export default function Dashboard() {
           alignItems: "center",
           padding: "1rem",
           borderBottom: "1px solid #ddd",
-           backgroundColor: "#3399ff",
+          backgroundColor: "#3399ff",
           boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
           color: "#333",
         }}
       >
         <h2>Dashboard</h2>
-        <div style={{ display: "flex", gap: "0.5rem" }}>
+        <div style={{ display: "flex", gap: "0.5rem", alignItems: "center" }}>
           <Button
             icon="pi pi-home"
             className="p-button-rounded p-button-text p-button-info"
@@ -128,7 +128,7 @@ export default function Dashboard() {
             </>
           ) : (
             <>
-              <span style={{ alignSelf: "center" }}>Hola, {user.name}</span>
+              <span style={{ alignSelf: "center" }}>Hola, {user.email}</span>
               <Button
                 icon="pi pi-sign-out"
                 label="Logout"
@@ -146,7 +146,7 @@ export default function Dashboard() {
           padding: "1.5rem",
           maxWidth: "900px",
           margin: "0 auto",
-          marginTop: "80px", // deja espacio para el header
+          marginTop: "80px",
         }}
       >
         <Card>
@@ -189,14 +189,7 @@ export default function Dashboard() {
           {!selectedCategory && (
             <>
               {loadingCategories ? (
-                <div
-                  style={{
-                    display: "flex",
-                    justifyContent: "center",
-                    alignItems: "center",
-                    height: "200px",
-                  }}
-                >
+                <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "200px" }}>
                   <ProgressSpinner />
                 </div>
               ) : categories.length === 0 ? (
@@ -227,21 +220,14 @@ export default function Dashboard() {
           {selectedCategory && (
             <>
               {loadingPosts ? (
-                <div
-                  style={{
-                    display: "flex",
-                    justifyContent: "center",
-                    alignItems: "center",
-                    height: "200px",
-                  }}
-                >
+                <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "200px" }}>
                   <ProgressSpinner />
                 </div>
               ) : posts.length > 0 ? (
                 <PostsList
                   posts={posts}
                   user={user}
-                  token={localStorage.getItem("token")}
+                  token={token} // ✅ Usa el token del contexto
                   initialComments={commentsData}
                 />
               ) : (
