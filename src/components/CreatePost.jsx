@@ -1,8 +1,14 @@
 // src/components/CreatePost.jsx
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { Button } from "primereact/button";
+import { InputText } from "primereact/inputtext";
+import { InputTextarea } from "primereact/inputtextarea";
+import { Card } from "primereact/card";
+import { ProgressSpinner } from "primereact/progressspinner";
+import { ToastContainer, toast } from "react-toastify";
 import api from "../api";
-import { toast } from "react-toastify";
+import { AuthContext } from "../context/AuthContext";
 
 export default function CreatePost() {
   const { categoryId } = useParams();
@@ -10,103 +16,257 @@ export default function CreatePost() {
   const [content, setContent] = useState("");
   const [categoryName, setCategoryName] = useState("");
   const [loading, setLoading] = useState(false);
+  const [categoryLoading, setCategoryLoading] = useState(true);
   const navigate = useNavigate();
+  const { user, token } = useContext(AuthContext);
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    api.get(`/categories/${categoryId}`, token)
-      .then((res) => {
-        setCategoryName(res.name || "Category");
-      })
-      .catch((error) => {
+    const loadCategory = async () => {
+      try {
+        setCategoryLoading(true);
+        const res = await api.get(`/categories/${categoryId}`, token);
+        setCategoryName(res.name || "Categoría");
+      } catch (error) {
         console.error("Error loading category:", error);
-        setCategoryName("Unknown category");
-      });
-  }, [categoryId]);
+        toast.error("❌ Error cargando la categoría");
+        setCategoryName("Categoría desconocida");
+      } finally {
+        setCategoryLoading(false);
+      }
+    };
+
+    if (categoryId) {
+      loadCategory();
+    }
+  }, [categoryId, token]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    if (!user || !token) {
+      toast.error("🔐 Debes iniciar sesión para crear un post");
+      navigate("/login");
+      return;
+    }
+
+    if (!title.trim() || !content.trim()) {
+      toast.error("📝 Completa todos los campos requeridos");
+      return;
+    }
+
+    if (title.length < 3) {
+      toast.error("📝 El título debe tener al menos 3 caracteres");
+      return;
+    }
+
+    if (content.length < 10) {
+      toast.error("📝 El contenido debe tener al menos 10 caracteres");
+      return;
+    }
+
     setLoading(true);
     
     try {
-      const token = localStorage.getItem("token");
-      
-      if (!token) {
-        toast.error("You must be logged in to create a post");
-        navigate("/login");
-        return;
-      }
-
       const postData = {
-        title: title,
-        content: content,
+        title: title.trim(),
+        content: content.trim(),
         category_id: parseInt(categoryId)
       };
 
-      console.log("Sending post data:", postData);
-
       await api.post("/posts", postData, token);
 
-      toast.success("Post created successfully!");
-      navigate("/dashboard");
+      toast.success("🎉 ¡Post creado exitosamente!");
+      setTimeout(() => navigate("/dashboard"), 1000);
       
     } catch (error) {
       console.error("Error creating post:", error);
-      toast.error(`Error creating post: ${error.message}`);
+      toast.error(`❌ Error creando el post: ${error.message}`);
     } finally {
       setLoading(false);
     }
   };
 
+  const handleCancel = () => {
+    navigate("/dashboard");
+  };
+
+  if (categoryLoading) {
+    return (
+      <div className="tech-background">
+        <div className="tech-grid"></div>
+        <div className="dashboard-content">
+          <div style={{ 
+            display: "flex", 
+            justifyContent: "center", 
+            alignItems: "center", 
+            height: "400px",
+            flexDirection: "column",
+            gap: "1.5rem"
+          }}>
+            <ProgressSpinner style={{ width: "60px", height: "60px" }} />
+            <p style={{ color: "var(--text-secondary)" }}>Cargando categoría...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="p-6 max-w-2xl mx-auto">
-      <h2 className="text-2xl font-bold mb-6">
-        Create Post in <span className="text-blue-600">{categoryName}</span>
-      </h2>
+    <div className="tech-background">
+      <div className="tech-grid"></div>
+      <ToastContainer />
+      
+      <div className="dashboard-content fade-in">
+        <div className="card" style={{ padding: "2rem", maxWidth: "800px", margin: "0 auto" }}>
+          <div style={{ textAlign: "center", marginBottom: "2rem" }}>
+            <div style={{ 
+              fontSize: "3rem", 
+              marginBottom: "1rem",
+              background: "linear-gradient(45deg, var(--neon-cyan), var(--neon-green))",
+              WebkitBackgroundClip: "text",
+              WebkitTextFillColor: "transparent",
+              backgroundClip: "text"
+            }}>
+              ✍️
+            </div>
+            <h2 style={{ 
+              marginBottom: "0.5rem",
+              background: "linear-gradient(45deg, var(--neon-cyan), var(--neon-pink))",
+              WebkitBackgroundClip: "text",
+              WebkitTextFillColor: "transparent",
+              backgroundClip: "text"
+            }}>
+              Crear Nuevo Post
+            </h2>
+            <p style={{ color: "var(--text-secondary)" }}>
+              en <span style={{ color: "var(--neon-cyan)", fontWeight: "600" }}>{categoryName}</span>
+            </p>
+          </div>
 
-      <form onSubmit={handleSubmit} className="space-y-6">
-        <div>
-          <label className="block text-sm font-medium mb-2">Title</label>
-          <input
-            type="text"
-            placeholder="Write the post title"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            className="border border-gray-300 p-3 rounded w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
-            required
-            minLength={3}
-          />
-        </div>
+          <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
+            {/* Campo Título */}
+            <div className="form-field">
+              <label>
+                <i className="pi pi-pencil" style={{ marginRight: "0.5rem" }}></i>
+                Título del Post
+              </label>
+              <InputText
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                placeholder="Escribe un título atractivo para tu post..."
+                style={{ width: "100%" }}
+                disabled={loading}
+              />
+              <small style={{ color: "var(--text-muted)", marginTop: "0.5rem", display: "block" }}>
+                Mínimo 3 caracteres • {title.length}/100
+              </small>
+            </div>
 
-        <div>
-          <label className="block text-sm font-medium mb-2">Content</label>
-          <textarea
-            placeholder="Write your post content..."
-            value={content}
-            onChange={(e) => setContent(e.target.value)}
-            className="border border-gray-300 p-3 rounded w-full h-40 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            required
-            minLength={10}
-          />
-        </div>
+            {/* Campo Contenido */}
+            <div className="form-field">
+              <label>
+                <i className="pi pi-file" style={{ marginRight: "0.5rem" }}></i>
+                Contenido del Post
+              </label>
+              <InputTextarea
+                value={content}
+                onChange={(e) => setContent(e.target.value)}
+                placeholder="Comparte tus ideas, conocimientos o preguntas con la comunidad..."
+                rows={8}
+                style={{ width: "100%", resize: "vertical" }}
+                disabled={loading}
+              />
+              <small style={{ color: "var(--text-muted)", marginTop: "0.5rem", display: "block" }}>
+                Mínimo 10 caracteres • {content.length}/5000
+              </small>
+            </div>
 
-        <div className="flex gap-3 pt-4">
-          <button
-            type="submit"
-            disabled={loading}
-            className="bg-green-600 text-white px-6 py-3 rounded hover:bg-green-700 disabled:bg-green-400 disabled:cursor-not-allowed transition-colors"
-          >
-            {loading ? "Creating..." : "Create Post"}
-          </button>
-          <button
-            type="button"
-            onClick={() => navigate("/dashboard")}
-            className="bg-gray-500 text-white px-6 py-3 rounded hover:bg-gray-600 transition-colors"
-          >
-            Cancel
-          </button>
+            {/* Información de la Categoría */}
+            <div style={{ 
+              padding: "1rem",
+              background: "rgba(102, 126, 234, 0.1)",
+              border: "1px solid rgba(102, 126, 234, 0.3)",
+              borderRadius: "var(--radius-md)",
+              textAlign: "center"
+            }}>
+              <p style={{ 
+                color: "var(--neon-blue)", 
+                margin: 0,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: "0.5rem"
+              }}>
+                <i className="pi pi-info-circle"></i>
+                Este post se publicará en la categoría: <strong>{categoryName}</strong>
+              </p>
+            </div>
+
+            {/* Botones de Acción */}
+            <div style={{ 
+              display: "flex", 
+              gap: "1rem", 
+              justifyContent: "center",
+              flexWrap: "wrap",
+              marginTop: "1rem"
+            }}>
+              <Button
+                type="submit"
+                label={loading ? "Creando Post..." : "Publicar Post"}
+                icon={loading ? "pi pi-spin pi-spinner" : "pi pi-send"}
+                className="tech-button tech-button-secondary"
+                disabled={loading}
+                style={{ minWidth: "160px" }}
+              />
+              <Button
+                type="button"
+                label="Cancelar"
+                icon="pi pi-times"
+                className="tech-button-outlined"
+                style={{ 
+                  minWidth: "160px",
+                  borderColor: "var(--neon-purple)",
+                  color: "var(--neon-purple)"
+                }}
+                onClick={handleCancel}
+                disabled={loading}
+              />
+            </div>
+          </form>
+
+          {/* Tips para escribir buenos posts */}
+          <div style={{ 
+            marginTop: "2rem",
+            padding: "1.5rem",
+            background: "rgba(255, 255, 255, 0.05)",
+            borderRadius: "var(--radius-md)",
+            border: "1px solid rgba(255, 255, 255, 0.1)"
+          }}>
+            <h4 style={{ 
+              color: "var(--text-primary)",
+              marginBottom: "1rem",
+              display: "flex",
+              alignItems: "center",
+              gap: "0.5rem"
+            }}>
+              <i className="pi pi-lightbulb" style={{ color: "var(--neon-green)" }}></i>
+              Consejos para un buen post
+            </h4>
+            <ul style={{ 
+              color: "var(--text-secondary)", 
+              paddingLeft: "1.5rem",
+              margin: 0,
+              lineHeight: "1.6"
+            }}>
+              <li>Sé claro y conciso en tu título</li>
+              <li>Organiza tu contenido en párrafos</li>
+              <li>Incluye ejemplos si es posible</li>
+              <li>Revisa la ortografía antes de publicar</li>
+              <li>Formula preguntas para fomentar la discusión</li>
+            </ul>
+          </div>
         </div>
-      </form>
+      </div>
     </div>
   );
 }
