@@ -69,7 +69,7 @@ export default function Home() {
           maxWidth: "900px"
         }}>
           <p style={{ color: "var(--text-muted)", fontSize: "0.9rem" }}>
-            Desarrollado con React ⚛️ • PrimeReact 🎨 • Flask 🐍
+            Desarrollado con React ⚛️ y Vite 🎨 • Por: Maximiliano Lopez y Agustin Lejtneker
           </p>
         </div>
       </div>
