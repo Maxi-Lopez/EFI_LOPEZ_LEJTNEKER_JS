@@ -1,16 +1,135 @@
-# React + Vite
+# 📝 EFI - Práctica Profesionalizante JavaScript
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## 👥 Integrantes del Equipo
 
-Currently, two official plugins are available:
+| Nombre Completo | GitHub |
+|----------------|---------|
+| **Maximiliano Lopez** | [@Maxi-Lopez](https://github.com/Maxi-Lopez) |
+| **Agustin Lejtneker** | [@ALejtneker](https://github.com/ALejtneker) |
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+---
 
-## React Compiler
+## 🔗 Enlaces del Proyecto
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- **Frontend (React):** https://github.com/Maxi-Lopez/EFI_LOPEZ_LEJTNEKER_JS.git  
+- **Backend (Flask API - referencia):** https://github.com/Maxi-Lopez/EFI_LOPEZ_LEJTNEKER.git
 
-## Expanding the ESLint configuration
+---
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## 🚀 Características del Proyecto (Frontend)
+
+### ⚙️ Tecnologías Principales
+- ⚡ **React 18** con **Vite** para un desarrollo rápido y modular.
+- 🎨 **PrimeReact** para componentes UI profesionales y personalizables.
+- 🔐 **Autenticación JWT** gestionada con **Context API**.
+- 👥 **Roles de usuario**: Admin, Moderador y Usuario.
+- 📱 **Diseño responsive** adaptable a dispositivos móviles.
+- ✨ **Validación de formularios** con **Formik** y **Yup**.
+- 🔔 **Notificaciones dinámicas** con **React Toastify**.
+
+---
+
+## 📋 Prerrequisitos
+
+Antes de comenzar, asegurate de tener instalados:
+
+- **Node.js** (v18 o superior)
+- **Git**
+
+---
+
+## 🛠️ Instalación y Ejecución del Frontend
+
+### 1. Clonar el repositorio
+
+```bash
+git clone https://github.com/Maxi-Lopez/EFI_LOPEZ_LEJTNEKER_JS.git
+cd EFI_LOPEZ_LEJTNEKER_JS
+
+2. Instalar dependencias
+
+npm install
+
+3. Ejecutar en modo desarrollo
+
+npm run dev
+
+La aplicación estará disponible en:
+👉 http://localhost:5173
+🏗️ Estructura del Proyecto
+
+EFI_LOPEZ_LEJTNEKER_JS/
+├── src/
+│   ├── components/          # Componentes React
+│   │   ├── Home.jsx
+│   │   ├── LoginForm.jsx
+│   │   ├── RegisterForm.jsx
+│   │   ├── Dashboard.jsx
+│   │   ├── PostsList.jsx
+│   │   ├── CreatePost.jsx
+│   │   ├── CreateCategory.jsx
+│   │   └── ProtectedRoute.jsx
+│   ├── context/             # Contextos de React
+│   │   └── AuthContext.jsx
+│   ├── api.js               # Configuración de conexión con API
+│   └── styles/              # Estilos CSS
+├── public/
+└── package.json
+
+🔐 Funcionalidades de Autenticación
+
+    Registro de usuarios con validación de datos.
+
+    Login seguro con tokens JWT.
+
+    Protección de rutas basada en roles.
+
+    Gestión de sesiones con localStorage.
+
+    Logout que limpia sesión y token.
+
+👨‍💼 Sistema de Roles
+Rol	Permisos
+Usuario (User)	Gestiona sus propios posts y comentarios.
+Moderador (Moderator)	Puede eliminar cualquier post o comentario.
+Administrador (Admin)	Acceso total al sistema.
+🧰 Solución de Problemas Comunes
+❗ Error de CORS
+
+Si el backend devuelve un error de CORS, asegurate de tener esto en Flask:
+
+from flask_cors import CORS
+CORS(app, resources={r"/api/*": {"origins": "http://localhost:5173"}})
+
+⚙️ Problemas de instalación
+
+# Limpiar cache de npm
+npm cache clean --force
+rm -rf node_modules
+npm install
+
+🧩 Error de dependencias
+
+npm update
+
+🤝 Contribución
+
+    Hacé un fork del proyecto.
+
+    Creá una nueva rama para tu feature:
+
+git checkout -b feature/NuevaFeature
+
+Realizá tus cambios y hacé commit:
+
+    git commit -m "Agrego nueva feature"
+
+    Subí tu rama y abrí un Pull Request.
+
+📞 Contacto
+
+📧 Maximiliano Lopez: m.lopez@itecriocuarto.org.ar
+
+📧 Agustin Lejtneker: a.lejtneker@itecriocuarto.org.ar
+
+✨ Gracias por visitar nuestro proyecto 🚀
