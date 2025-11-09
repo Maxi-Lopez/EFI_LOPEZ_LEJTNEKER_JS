@@ -1,16 +1,21 @@
 import React, { useState, useEffect } from "react";
 import { Button } from "primereact/button";
 import { InputText } from "primereact/inputtext";
+import { InputTextarea } from "primereact/inputtextarea";
 import { Chip } from "primereact/chip";
-import { ToastContainer, toast } from "react-toastify";
+import { toast } from "react-toastify";
 import api from "../api";
 import { API_URL } from "../api";
 
-export default function PostsList({ posts, user, token, initialComments }) {
+export default function PostsList({ posts, user, token, initialComments, onPostUpdate }) {
   const [showCommentInput, setShowCommentInput] = useState({});
   const [newComment, setNewComment] = useState({});
   const [commentsData, setCommentsData] = useState(initialComments || {});
-  const [deletedPosts, setDeletedPosts] = useState({}); 
+  const [deletedPosts, setDeletedPosts] = useState({});
+  const [editingPost, setEditingPost] = useState(null);
+  const [editTitle, setEditTitle] = useState("");
+  const [editContent, setEditContent] = useState("");
+  const [loadingEdit, setLoadingEdit] = useState(false);
 
   useEffect(() => {
     if (initialComments) setCommentsData(initialComments);
@@ -91,14 +96,75 @@ export default function PostsList({ posts, user, token, initialComments }) {
     }
   };
 
-  // ✅ CORREGIDO: Usa user.sub que es donde está el ID real
+  const startEditPost = (post) => {
+    setEditingPost(post.id);
+    setEditTitle(post.title);
+    setEditContent(post.content);
+  };
+
+  const cancelEditPost = () => {
+    setEditingPost(null);
+    setEditTitle("");
+    setEditContent("");
+  };
+
+  const saveEditPost = async (postId) => {
+    if (!editTitle.trim() || !editContent.trim()) {
+      toast.error("📝 El título y contenido son obligatorios");
+      return;
+    }
+
+    if (editTitle.length < 3) {
+      toast.error("📝 El título debe tener al menos 3 caracteres");
+      return;
+    }
+
+    if (editContent.length < 10) {
+      toast.error("📝 El contenido debe tener al menos 10 caracteres");
+      return;
+    }
+
+    setLoadingEdit(true);
+    try {
+      const response = await api.put(
+        `/posts/${postId}`,
+        {
+          title: editTitle.trim(),
+          content: editContent.trim()
+        },
+        token
+      );
+
+      // ✅ Manejar diferentes estructuras de respuesta
+      const updatedPost = response.data || response;
+
+      toast.success("✏️ Post actualizado exitosamente");
+      
+      // ✅ Pasar el post completo actualizado al padre
+      if (onPostUpdate) {
+        onPostUpdate(updatedPost);
+      }
+      
+      setEditingPost(null);
+      setEditTitle("");
+      setEditContent("");
+      
+    } catch (err) {
+      toast.error(`❌ Error al actualizar el post: ${err.message}`);
+    } finally {
+      setLoadingEdit(false);
+    }
+  };
+
   const canDeletePost = (post) =>
     user &&
     (user.role === "admin" ||
       user.role === "moderator" ||
       String(user.sub) === String(post.author_id));
 
-  // ✅ CORREGIDO: Usa user.sub que es donde está el ID real
+  const canEditPost = (post) =>
+    user && String(user.sub) === String(post.author_id);
+
   const canDeleteComment = (comment) =>
     user &&
     (user.role === "admin" ||
@@ -130,7 +196,6 @@ export default function PostsList({ posts, user, token, initialComments }) {
 
   return (
     <div style={{ marginTop: "1rem" }}>
-      <ToastContainer />
       <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
         {posts.map((post) => (
           <div key={post.id} className="post-item fade-in">
@@ -154,13 +219,27 @@ export default function PostsList({ posts, user, token, initialComments }) {
                   marginBottom: "1rem"
                 }}>
                   <div>
-                    <h3 style={{ 
-                      margin: "0 0 0.5rem 0",
-                      color: "var(--text-primary)",
-                      fontSize: "1.25rem"
-                    }}>
-                      {post.title}
-                    </h3>
+                    {editingPost === post.id ? (
+                      <div style={{ marginBottom: "1rem" }}>
+                        <InputText
+                          value={editTitle}
+                          onChange={(e) => setEditTitle(e.target.value)}
+                          placeholder="Título del post"
+                          style={{ width: "100%", marginBottom: "0.5rem" }}
+                        />
+                        <small style={{ color: "var(--text-muted)" }}>
+                          {editTitle.length}/100 caracteres
+                        </small>
+                      </div>
+                    ) : (
+                      <h3 style={{ 
+                        margin: "0 0 0.5rem 0",
+                        color: "var(--text-primary)",
+                        fontSize: "1.25rem"
+                      }}>
+                        {post.title}
+                      </h3>
+                    )}
                     <div style={{ display: "flex", gap: "1rem", alignItems: "center", flexWrap: "wrap" }}>
                       <Chip 
                         label={post.author?.name || "Anónimo"} 
@@ -190,19 +269,67 @@ export default function PostsList({ posts, user, token, initialComments }) {
                     </div>
                   </div>
                   
-                  {canDeletePost(post) && (
-                    <Button
-                      icon="pi pi-trash"
-                      className="tech-button-outlined"
-                      style={{ 
-                        borderColor: "var(--neon-pink)", 
-                        color: "var(--neon-pink)" 
-                      }}
-                      onClick={() => deletePost(post.id)}
-                      tooltip="Eliminar post"
-                      tooltipOptions={{ position: 'top' }}
-                    />
-                  )}
+                  <div style={{ display: "flex", gap: "0.5rem" }}>
+                    {/* Botón Editar */}
+                    {canEditPost(post) && editingPost !== post.id && (
+                      <Button
+                        icon="pi pi-pencil"
+                        className="tech-button-outlined"
+                        style={{ 
+                          borderColor: "var(--neon-cyan)", 
+                          color: "var(--neon-cyan)" 
+                        }}
+                        onClick={() => startEditPost(post)}
+                        tooltip="Editar post"
+                        tooltipOptions={{ position: 'top' }}
+                      />
+                    )}
+                    
+                    {/* Botones durante edición */}
+                    {editingPost === post.id && (
+                      <>
+                        <Button
+                          icon="pi pi-check"
+                          className="tech-button"
+                          style={{ 
+                            backgroundColor: "var(--neon-green)",
+                            borderColor: "var(--neon-green)"
+                          }}
+                          onClick={() => saveEditPost(post.id)}
+                          disabled={loadingEdit}
+                          tooltip="Guardar cambios"
+                          tooltipOptions={{ position: 'top' }}
+                        />
+                        <Button
+                          icon="pi pi-times"
+                          className="tech-button-outlined"
+                          style={{ 
+                            borderColor: "var(--neon-purple)", 
+                            color: "var(--neon-purple)" 
+                          }}
+                          onClick={cancelEditPost}
+                          disabled={loadingEdit}
+                          tooltip="Cancelar edición"
+                          tooltipOptions={{ position: 'top' }}
+                        />
+                      </>
+                    )}
+                    
+                    {/* Botón Eliminar */}
+                    {canDeletePost(post) && editingPost !== post.id && (
+                      <Button
+                        icon="pi pi-trash"
+                        className="tech-button-outlined"
+                        style={{ 
+                          borderColor: "var(--neon-pink)", 
+                          color: "var(--neon-pink)" 
+                        }}
+                        onClick={() => deletePost(post.id)}
+                        tooltip="Eliminar post"
+                        tooltipOptions={{ position: 'top' }}
+                      />
+                    )}
+                  </div>
                 </div>
 
                 {/* Contenido del Post */}
@@ -213,14 +340,29 @@ export default function PostsList({ posts, user, token, initialComments }) {
                   marginBottom: "1rem",
                   lineHeight: "1.6"
                 }}>
-                  <p style={{ margin: 0, color: "var(--text-secondary)" }}>
-                    {post.content}
-                  </p>
+                  {editingPost === post.id ? (
+                    <div>
+                      <InputTextarea
+                        value={editContent}
+                        onChange={(e) => setEditContent(e.target.value)}
+                        placeholder="Contenido del post"
+                        rows={6}
+                        style={{ width: "100%", resize: "vertical" }}
+                      />
+                      <small style={{ color: "var(--text-muted)", marginTop: "0.5rem", display: "block" }}>
+                        {editContent.length}/5000 caracteres
+                      </small>
+                    </div>
+                  ) : (
+                    <p style={{ margin: 0, color: "var(--text-secondary)" }}>
+                      {post.content}
+                    </p>
+                  )}
                 </div>
 
                 {/* Sección de Comentarios */}
                 <div>
-                  {user && (
+                  {user && editingPost !== post.id && (
                     <div style={{ marginBottom: "1rem" }}>
                       {!showCommentInput[post.id] ? (
                         <Button
@@ -268,7 +410,7 @@ export default function PostsList({ posts, user, token, initialComments }) {
                   )}
 
                   {/* Lista de Comentarios */}
-                  {commentsData[post.id] && commentsData[post.id].length > 0 && (
+                  {commentsData[post.id] && commentsData[post.id].length > 0 && editingPost !== post.id && (
                     <div>
                       <h4 style={{ 
                         color: "var(--text-primary)",

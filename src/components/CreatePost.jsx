@@ -5,7 +5,7 @@ import { InputText } from "primereact/inputtext";
 import { InputTextarea } from "primereact/inputtextarea";
 import { Card } from "primereact/card";
 import { ProgressSpinner } from "primereact/progressspinner";
-import { ToastContainer, toast } from "react-toastify";
+import { toast } from "react-toastify";
 import api from "../api";
 import { AuthContext } from "../context/AuthContext";
 
@@ -112,9 +112,7 @@ export default function CreatePost() {
 
   return (
     <div className="tech-background">
-      <div className="tech-grid"></div>
-      <ToastContainer />
-      
+      <div className="tech-grid"></div>    
       <div className="dashboard-content fade-in">
         <div className="card" style={{ padding: "2rem", maxWidth: "800px", margin: "0 auto" }}>
           <div style={{ textAlign: "center", marginBottom: "2rem" }}>

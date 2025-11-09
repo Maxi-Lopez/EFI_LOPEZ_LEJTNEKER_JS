@@ -2,7 +2,7 @@ import { useState, useEffect, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "primereact/button";
 import { Card } from "primereact/card";
-import { ToastContainer, toast } from "react-toastify";
+import { toast } from "react-toastify";
 import { ProgressSpinner } from "primereact/progressspinner";
 import { Chip } from "primereact/chip";
 import api from "../api";
@@ -76,10 +76,17 @@ export default function Dashboard() {
     navigate("/");
   };
 
+  const updatePostInList = (updatedPost) => {
+    setPosts(prevPosts => 
+      prevPosts.map(post => 
+        post.id === updatedPost.id ? { ...post, ...updatedPost } : post
+      )
+    );
+  };
+
   return (
     <div className="tech-background">
       <div className="tech-grid"></div>
-      <ToastContainer />
 
       {/* Header fijo */}
       <div className="dashboard-header fade-in">
@@ -291,6 +298,7 @@ export default function Dashboard() {
                   user={user}
                   token={token}
                   initialComments={commentsData}
+                  onPostUpdate={updatePostInList} 
                 />
               ) : (
                 <div style={{ 

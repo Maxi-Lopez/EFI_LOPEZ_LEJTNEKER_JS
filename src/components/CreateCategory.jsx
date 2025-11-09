@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "primereact/button";
 import { InputText } from "primereact/inputtext";
 import { Card } from "primereact/card";
-import { ToastContainer, toast } from "react-toastify";
+import { toast } from "react-toastify";
 import api from "../api";
 import { AuthContext } from "../context/AuthContext";
 
@@ -75,9 +75,7 @@ export default function CreateCategory() {
 
   return (
     <div className="tech-background">
-      <div className="tech-grid"></div>
-      <ToastContainer />
-      
+      <div className="tech-grid"></div>   
       <div className="dashboard-content fade-in">
         <div className="card" style={{ padding: "2rem", maxWidth: "600px", margin: "0 auto" }}>
           <div style={{ textAlign: "center", marginBottom: "2rem" }}>

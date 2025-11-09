@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "primereact/button";
 import { ProgressSpinner } from "primereact/progressspinner";
 import { Card } from "primereact/card";
-import { ToastContainer, toast } from "react-toastify";
+import { toast } from "react-toastify";
 import api from '../api';
 import { AuthContext } from "../context/AuthContext";
 
@@ -44,9 +44,7 @@ export default function SelectCategory() {
 
   return (
     <div className="tech-background">
-      <div className="tech-grid"></div>
-      <ToastContainer />
-      
+      <div className="tech-grid"></div>    
       <div className="dashboard-content fade-in">
         <div className="card" style={{ padding: "2rem" }}>
           <div style={{ textAlign: "center", marginBottom: "2rem" }}>
